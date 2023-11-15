@@ -1,0 +1,38 @@
+I apologize for any confusion caused. The validation I provided earlier was a basic regular expression pattern to check if the `dir_path` variable matches a typical directory path format. However, it may not cover all possible scenarios or catch specific issues with the path.
+
+If you need more stringent validation or want to handle specific cases, you can modify the regular expression to suit your requirements. Regular expressions can be customized to match specific patterns or formats for directory paths.
+
+Here's an updated version of the playbook with an improved validation using a regular expression pattern:
+
+```yaml
+- name: Create onboard directory
+  hosts: your_remote_server
+  tags:
+    - setup
+    - onboard
+  tasks:
+    - name: Validate directory path
+      fail:
+        msg: "Invalid directory path: {{ dir_path }}"
+      when: not dir_path is regex('^([a-zA-Z]:)?(\\\\[a-zA-Z0-9_()\\-=^~#@{}\\[\\];\',]*)+$')
+
+    - name: Create onboard directory
+      ansible.windows.win_file:
+        path: "{{ dir_path }}"
+        state: directory
+
+    - name: Move the onboard agent to the created directory
+      ansible.windows.win_copy:
+        src: "{{ agent_file }}"
+        dest: "{{ dir_path }}"
+
+    - name: Unzip the agent file to the directory
+      community.windows.win_unzip:
+        src: "{{ agent_file }}"
+        dest: "{{ dir_path }}"
+        delete_archive: yes
+```
+
+The updated regular expression pattern `'^([a-zA-Z]:)?(\\\\[a-zA-Z0-9_()\\-=^~#@{}\\[\\];\',]*)+$'` provides a more comprehensive validation for Windows directory paths. However, keep in mind that even with this pattern, it may not cover all possible scenarios or handle all edge cases.
+
+If you have specific requirements or constraints for the directory path format, please provide more details, and I can assist you in refining the validation further.
