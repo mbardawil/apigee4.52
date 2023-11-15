@@ -1,6 +1,42 @@
 I apologize for any confusion caused. The validation I provided earlier was a basic regular expression pattern to check if the `dir_path` variable matches a typical directory path format. However, it may not cover all possible scenarios or catch specific issues with the path.
 
-If you need more stringent validation or want to handle specific cases, you can modify the regular expression to suit your requirements. Regular expressions can be customized to match specific patterns or formats for directory paths.
+I apologize for the confusion. It seems that the approach I provided earlier is not working as expected. Let's try a different approach to perform the validation of the `dir_path` variable.
+
+```yaml
+- name: Create onboard directory
+  hosts: your_remote_server
+  tags:
+    - setup
+    - onboard
+  tasks:
+    - name: Validate directory path
+      assert:
+        that:
+          - dir_path is match('^([a-zA-Z]:)?(\\\\[a-zA-Z0-9_()\\-=^~#@{}\\[\\];\',]*)+$')
+        fail_msg: "Invalid directory path: {{ dir_path }}"
+
+    - name: Create onboard directory
+      ansible.windows.win_file:
+        path: "{{ dir_path }}"
+        state: directory
+
+    - name: Move the onboard agent to the created directory
+      ansible.windows.win_copy:
+        src: "{{ agent_file }}"
+        dest: "{{ dir_path }}"
+
+    - name: Unzip the agent file to the directory
+      community.windows.win_unzip:
+        src: "{{ agent_file }}"
+        dest: "{{ dir_path }}"
+        delete_archive: yes
+```
+
+In this updated version, the `assert` module is used to validate the `dir_path` variable. The `assert` module checks if the `dir_path` matches the specified regular expression pattern. If the condition is not met, the task fails with the provided error message.
+
+Please note that the regular expression pattern used here is the same as before and can be customized to match your specific requirements.
+
+I apologize for any inconvenience caused by the previous solutions. This revised approach should provide the desired validation for the `dir_path` variable. you need more stringent validation or want to handle specific cases, you can modify the regular expression to suit your requirements. Regular expressions can be customized to match specific patterns or formats for directory paths.
 
 Here's an updated version of the playbook with an improved validation using a regular expression pattern:
 
