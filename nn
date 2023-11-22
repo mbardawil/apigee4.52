@@ -1,0 +1,23 @@
+- name: Run the onboard script
+  tags:
+  - setup
+  - onboard
+  - run
+  win_shell: '{{ dir_path }}/{{ onboard_script_file }'
+  args: "-p asd"
+  register: result
+
+- name: Get the onboard script results
+  tags:
+  - setup
+  - onboard
+  - run
+  debug:
+    msg: '{{ result }}'
+- name: Debug
+  debug:
+    var: args
+  tags:
+  - setup
+  - onboard
+  - run
