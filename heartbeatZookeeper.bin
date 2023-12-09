@@ -46,7 +46,7 @@ heartbeat.monitors:
   
 - type: tcp
   schedule: '@every 5s' 
-  hosts: ["10.60.2.170:2181"]
+  hosts: ["localhost:2181"]
   check.send: 'ruok'
   check.receive: 'imok'
   mode: any 
@@ -116,15 +116,15 @@ setup.kibana:
 # ---------------------------- Elasticsearch Output ----------------------------
 output.elasticsearch:
   # Array of hosts to connect to.
-  hosts: ["10.60.3.185:9200", "10.60.3.186:9200", "10.60.3.187:9200"]
+  hosts: ["172.16.22.54:9200","172.16.22.55:9200"]
 
   # Protocol - either `http` (default) or `https`.
   #protocol: "https"
 
   # Authentication credentials - either API key or username/password.
   #api_key: "id:api_key"
-  username: "heartbeat_user"
-  password: "Aa@12345678"
+  username: "elastic"
+  password: "XczTdqKrG0uiu8hVHbG2"
 
 # ------------------------------ Logstash Output -------------------------------
 #output.logstash:
