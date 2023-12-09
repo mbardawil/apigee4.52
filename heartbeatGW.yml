@@ -39,14 +39,14 @@ heartbeat.monitors:
 
 - type: http
   schedule: '@every 5s'
-  urls: ["http://10.60.3.172:8081/v1/servers/self/up"]
+  urls: ["http://localhost:8081/v1/servers/self/up"]
   service.name: apm-service-name 
   id: apigee-router-node-1
   name: APIGEE Router Node 1
   
 - type: http
   schedule: '@every 5s'
-  urls: ["http://10.60.3.172:8082/v1/servers/self/up"]
+  urls: ["http://localhost:8082/v1/servers/self/up"]
   service.name: apm-service-name 
   id: apigee-message-processor-node-1
   name: APIGEE Message Processor Node 1
