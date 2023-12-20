@@ -1,3 +1,28 @@
+{
+  "key": "apigeeservice_token",
+  "value": {
+    "value": null,
+    "isSecret": true
+  }
+}
+{
+  "key": "password",
+  "value": {
+    "value": null,
+    "isSecret": true
+  }
+}
+{
+  "key": "username",
+  "value": {
+    "value": null,
+    "isSecret": true
+  }
+}
+
+
+
+
 steps:
 - script: |
     organization="YourOrganization"
