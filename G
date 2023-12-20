@@ -12,6 +12,40 @@ steps:
     for group in ${variable_groups[@]}; do
         echo "Variable Group: $group"
 
+        group_url="https://dev.azure.com/$organization/$project/_apis/distributedtask/variablegroups?groupName=$group&api-version=6.0-preview.2"
+        group_response=$(curl -s -H "Authorization: Bearer $pat" "$group_url")
+        variables=$(echo "$group_response" | jq -r '.value[0].variables | to_entries[]')
+
+        while IFS="=" read -r key value; do
+            if [[ $key == secret_* ]]; then
+                value="${!key}"
+            fi
+            echo "Key: $key"
+            echo "Value: $value"
+            echo "##vso[task.setvariable variable=$key]$value"
+        done <<< "$variables"
+    done
+
+- script: echo "Variable1: $(Variable1)"
+  displayName: 'Use Variable1'
+
+- script: echo "Variable2: $(Variable2)"
+  displayName: 'Use Variable2'
+
+steps:
+- script: |
+    organization="YourOrganization"
+    project="YourProject"
+    pat="PersonalAccessToken"
+
+    url="https://dev.azure.com/$organization/$project/_apis/distributedtask/variablegroups?api-version=6.0-preview.2"
+
+    response=$(curl -s -H "Authorization: Bearer $pat" "$url")
+    variable_groups=$(echo "$response" | jq -r '.value[].name')
+
+    for group in ${variable_groups[@]}; do
+        echo "Variable Group: $group"
+
         # PowerShell script to process variable group
         pwsh -Command |
             $variableGroup = az pipelines variable-group variable list --group-name $group --org $organization --project $project --query "[].{name:name,value:value}" -o json | ConvertFrom-Json
