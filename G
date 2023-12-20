@@ -1,4 +1,38 @@
-I apologize for the misunderstanding. I see the issue now. The regular expression pattern used previously does not prevent a single word without slashes from passing the validation because the pattern allows for an optional drive letter followed by any number of backslashes and specific characters.
+steps:
+- script: |
+    organization="YourOrganization"
+    project="YourProject"
+    pat="PersonalAccessToken"
+
+    url="https://dev.azure.com/$organization/$project/_apis/distributedtask/variablegroups?api-version=6.0-preview.2"
+
+    response=$(curl -s -H "Authorization: Bearer $pat" "$url")
+    variable_groups=$(echo "$response" | jq -r '.value[].name')
+
+    for group in ${variable_groups[@]}; do
+        echo "Variable Group: $group"
+
+        # PowerShell script to process variable group
+        pwsh -Command |
+            $variableGroup = az pipelines variable-group variable list --group-name $group --org $organization --project $project --query "[].{name:name,value:value}" -o json | ConvertFrom-Json
+            foreach ($var in $variableGroup) {
+                $key = $var.name
+                $value = $var.value
+                if ($key -like 'secret_*') {
+                    $value = $env:($key)
+                }
+                Write-Host "Key: $key"
+                Write-Host "Value: $value"
+                Write-Host "##vso[task.setvariable variable=$key]$value"
+            }
+        | displayName 'Process Variable Group'
+    done
+
+- script: echo "Variable1: $(Variable1)"
+  displayName: 'Use Variable1'
+
+- script: echo "Variable2: $(Variable2)"
+  displayName: 'Use Variable2' apologize for the misunderstanding. I see the issue now. The regular expression pattern used previously does not prevent a single word without slashes from passing the validation because the pattern allows for an optional drive letter followed by any number of backslashes and specific characters.
 steps:
 - bash: |
     variableGroup=$(az pipelines variable-group variable list --group-id <variable-group-id> --detect true)
