@@ -1,5 +1,28 @@
 I apologize for the misunderstanding. I see the issue now. The regular expression pattern used previously does not prevent a single word without slashes from passing the validation because the pattern allows for an optional drive letter followed by any number of backslashes and specific characters.
+steps:
+- bash: |
+    variableGroup=$(az pipelines variable-group variable list --group-id <variable-group-id> --detect true)
+    
+    for row in $(echo "$variableGroup" | jq -r '.[] | @base64'); do
+      _jq() {
+        echo ${row} | base64 --decode | jq -r ${1}
+      }
+      key=$(_jq '.name')
+      value=$(_jq '.value')
+      if [[ $key == secret_* ]]; then
+        value=${!key}
+      fi
+      echo "Key: $key"
+      echo "Value: $value"
+      echo "##vso[task.setvariable variable=$key]$value"
+    done
+  displayName: 'Process Variable Group'
 
+- script: echo "Variable1: $(Variable1)"
+  displayName: 'Use Variable1'
+
+- script: echo "Variable2: $(Variable2)"
+  displayName: 'Use Variable2'
 If you want to enforce the presence of slashes in the directory path, you can modify the regular expression pattern to include at least one slash. Here's an updated version of the playbook with the modified validation:
 
 ```yaml
