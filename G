@@ -1,3 +1,46 @@
+#!/bin/bash
+
+json_data='
+{
+  "key": "apigeeservice_token",
+  "value": {
+    "value": null,
+    "isSecret": true
+  }
+}
+{
+  "key": "password",
+  "value": {
+    "value": null,
+    "isSecret": true
+  }
+}
+{
+  "key": "username",
+  "value": {
+    "value": null,
+    "isSecret": true
+  }
+}
+'
+
+# Extract key and value from JSON data
+keys=($(echo "$json_data" | jq -r '.key'))
+values=($(echo "$json_data" | jq -r '.value.value'))
+
+# Loop through the keys and values
+for ((i=0; i<${#keys[@]}; i++)); do
+  key="${keys[$i]}"
+  value="${values[$i]}"
+
+  if [[ $key == secret_* ]]; then
+    value="${!key}"
+  fi
+
+  echo "Key: $key"
+  echo "Value: $value"
+  echo "##vso[task.setvariable variable=$key]$value"
+done
 {
   "key": "apigeeservice_token",
   "value": {
