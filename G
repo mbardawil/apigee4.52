@@ -1,37 +1,92 @@
 ---
-- hosts: your_host
-  become: true
-  tasks:
-    - name: Stop and disable PostgreSQL
-      service:
-        name: postgresql
-        state: stopped
-        enabled: no
+- block:
+  - import_tasks: dns.yml
+    tags:
+      - dns
 
-    - name: Stop and disable Nginx
-      service:
-        name: nginx
-        state: stopped
-        enabled: no
+#  - import_tasks: nss.yml
+#    tags:
+#      - nss
 
-    - name: Install Python 2
-      package:
-        name: python2
-        state: present
+#  - import_tasks: libdb.yml
+#    tags:
+#      - libdb
 
-    - name: Create symlink for Python
-      file:
-        src: /usr/bin/python2
-        dest: /usr/bin/python
-        state: link
-        force: yes
+#  - import_tasks: acl.yml
+#    tags:
+#      - acl
 
-    - name: Copy EPEL RPM to target host
-      copy:
-        src: /path/to/epel-release-latest-8.noarch.rpm
-        dest: /tmp/epel-release-latest-8.noarch.rpm
+#  - import_tasks: firewall.yml
+#    tags:
+#      - firewall
 
-    - name: Install EPEL repository
-      yum:
-        name: /tmp/epel-release-latest-8.noarch.rpm
-        state: present
+#  - import_tasks: hostname.yml
+#    tags:
+#      - hostname
+
+  - import_tasks: ntp.yml
+    tags:
+      - ntp
+  
+  - import_tasks: epel.yml
+    tags:
+      - epel
+
+  - import_tasks: selinux.yml
+    tags:
+      - selinux
+
+  - import_tasks: account.yml
+    tags:
+      - account
+
+  - import_tasks: filesystem.yml
+    tags:
+      - filesystem
+    become: yes
+
+  - import_tasks: installation-path.yml
+    tags:
+      - installation-path
+    become: yes
+
+  - import_tasks: java.yml
+    when: not apigee_java_package is none
+    tags:
+      - java
+
+  - import_tasks: bootstrap.yml
+    tags:
+      - bootstrap
+
+  - import_tasks: nscd.yml
+    tags:
+      - nscd
+  - import_tasks: response.yml
+    become: yes
+    tags:
+      - response
+
+  - import_tasks: cpy.yml
+    become: yes
+    tags:
+      - cpy
+
+  - import_tasks: limit.yml
+    become: yes
+    tags:
+      - limitall
+
+  - import_tasks: javahome.yml
+    become: yes
+    tags:
+      - javahome
+
+  - import_tasks: monetization.yml
+    become: yes
+    tags:
+      - monetization
+
+
+  become: yes
+
