@@ -1,198 +1,49 @@
-#!/bin/bash
+User: Make sthea steps in ansible task
 
-json_data='
-{
-  "key": "apigeeservice_token",
-  "value": {
-    "value": null,
-    "isSecret": true
-  }
-}
-{
-  "key": "password",
-  "value": {
-    "value": null,
-    "isSecret": true
-  }
-}
-{
-  "key": "username",
-  "value": {
-    "value": null,
-    "isSecret": true
-  }
-}
-'
-
-# Extract key and value from JSON data
-keys=($(echo "$json_data" | jq -r '.key'))
-values=($(echo "$json_data" | jq -r '.value.value'))
-
-# Loop through the keys and values
-for ((i=0; i<${#keys[@]}; i++)); do
-  key="${keys[$i]}"
-  value="${values[$i]}"
-
-  if [[ $key == secret_* ]]; then
-    value="${!key}"
-  fi
-
-  echo "Key: $key"
-  echo "Value: $value"
-  echo "##vso[task.setvariable variable=$key]$value"
-done
-{
-  "key": "apigeeservice_token",
-  "value": {
-    "value": null,
-    "isSecret": true
-  }
-}
-{
-  "key": "password",
-  "value": {
-    "value": null,
-    "isSecret": true
-  }
-}
-{
-  "key": "username",
-  "value": {
-    "value": null,
-    "isSecret": true
-  }
-}
-
-
-
-
-steps:
-- script: |
-    organization="YourOrganization"
-    project="YourProject"
-    pat="PersonalAccessToken"
-
-    url="https://dev.azure.com/$organization/$project/_apis/distributedtask/variablegroups?api-version=6.0-preview.2"
-
-    response=$(curl -s -H "Authorization: Bearer $pat" "$url")
-    variable_groups=$(echo "$response" | jq -r '.value[].name')
-
-    for group in ${variable_groups[@]}; do
-        echo "Variable Group: $group"
-
-        group_url="https://dev.azure.com/$organization/$project/_apis/distributedtask/variablegroups?groupName=$group&api-version=6.0-preview.2"
-        group_response=$(curl -s -H "Authorization: Bearer $pat" "$group_url")
-        variables=$(echo "$group_response" | jq -r '.value[0].variables | to_entries[]')
-
-        while IFS="=" read -r key value; do
-            if [[ $key == secret_* ]]; then
-                value="${!key}"
-            fi
-            echo "Key: $key"
-            echo "Value: $value"
-            echo "##vso[task.setvariable variable=$key]$value"
-        done <<< "$variables"
-    done
-
-- script: echo "Variable1: $(Variable1)"
-  displayName: 'Use Variable1'
-
-- script: echo "Variable2: $(Variable2)"
-  displayName: 'Use Variable2'
-
-steps:
-- script: |
-    organization="YourOrganization"
-    project="YourProject"
-    pat="PersonalAccessToken"
-
-    url="https://dev.azure.com/$organization/$project/_apis/distributedtask/variablegroups?api-version=6.0-preview.2"
-
-    response=$(curl -s -H "Authorization: Bearer $pat" "$url")
-    variable_groups=$(echo "$response" | jq -r '.value[].name')
-
-    for group in ${variable_groups[@]}; do
-        echo "Variable Group: $group"
-
-        # PowerShell script to process variable group
-        pwsh -Command |
-            $variableGroup = az pipelines variable-group variable list --group-name $group --org $organization --project $project --query "[].{name:name,value:value}" -o json | ConvertFrom-Json
-            foreach ($var in $variableGroup) {
-                $key = $var.name
-                $value = $var.value
-                if ($key -like 'secret_*') {
-                    $value = $env:($key)
-                }
-                Write-Host "Key: $key"
-                Write-Host "Value: $value"
-                Write-Host "##vso[task.setvariable variable=$key]$value"
-            }
-        | displayName 'Process Variable Group'
-    done
-
-- script: echo "Variable1: $(Variable1)"
-  displayName: 'Use Variable1'
-
-- script: echo "Variable2: $(Variable2)"
-  displayName: 'Use Variable2' apologize for the misunderstanding. I see the issue now. The regular expression pattern used previously does not prevent a single word without slashes from passing the validation because the pattern allows for an optional drive letter followed by any number of backslashes and specific characters.
-steps:
-- bash: |
-    variableGroup=$(az pipelines variable-group variable list --group-id <variable-group-id> --detect true)
-    
-    for row in $(echo "$variableGroup" | jq -r '.[] | @base64'); do
-      _jq() {
-        echo ${row} | base64 --decode | jq -r ${1}
-      }
-      key=$(_jq '.name')
-      value=$(_jq '.value')
-      if [[ $key == secret_* ]]; then
-        value=${!key}
-      fi
-      echo "Key: $key"
-      echo "Value: $value"
-      echo "##vso[task.setvariable variable=$key]$value"
-    done
-  displayName: 'Process Variable Group'
-
-- script: echo "Variable1: $(Variable1)"
-  displayName: 'Use Variable1'
-
-- script: echo "Variable2: $(Variable2)"
-  displayName: 'Use Variable2'
-If you want to enforce the presence of slashes in the directory path, you can modify the regular expression pattern to include at least one slash. Here's an updated version of the playbook with the modified validation:
+Assistant: Certainly! Here's an example playbook that uses Ansible tasks to modify the `/etc/hosts` file and configure the system so that `hostname -i` returns only the IP address:
 
 ```yaml
-- name: Create onboard directory
-  hosts: your_remote_server
-  tags:
-    - setup
-    - onboard
+---
+- hosts: your_host
+  become: true
   tasks:
-    - name: Validate directory path
-      assert:
-        that:
-          - dir_path is match('^([a-zA-Z]:)?(\\\\[a-zA-Z0-9_()\\-=^~#@{}\\[\\];\',]*)+\\\\[a-zA-Z0-9_()\\-=^~#@{}\\[\\];\',]*$')
-        fail_msg: "Invalid directory path: {{ dir_path }}"
+    - name: Read current hostname
+      command: hostname
+      register: current_hostname
 
-    - name: Create onboard directory
-      ansible.windows.win_file:
-        path: "{{ dir_path }}"
-        state: directory
+    - name: Retrieve IP address
+      command: hostname -i
+      register: ip_address_output
 
-    - name: Move the onboard agent to the created directory
-      ansible.windows.win_copy:
-        src: "{{ agent_file }}"
-        dest: "{{ dir_path }}"
+    - name: Extract IP address
+      set_fact:
+        ip_address: "{{ ip_address_output.stdout | regex_replace('^(\\S+).*$', '\\1') }}"
 
-    - name: Unzip the agent file to the directory
-      community.windows.win_unzip:
-        src: "{{ agent_file }}"
-        dest: "{{ dir_path }}"
-        delete_archive: yes
+    - name: Modify /etc/hosts file
+      blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        block: |
+          {{ ip_address }}   {{ current_hostname.stdout }}
+
+    - name: Reload networking configuration
+      command: systemctl restart networking
+      become: true
+      become_method: sudo
 ```
 
-In this updated version, the regular expression pattern `'^([a-zA-Z]:)?(\\\\[a-zA-Z0-9_()\\-=^~#@{}\\[\\];\',]*)+\\\\[a-zA-Z0-9_()\\-=^~#@{}\\[\\];\',]*$'` is used. This pattern enforces at least one slash (`\\`) in the directory path.
+In this playbook, the tasks are as follows:
 
-Please note that the regular expression pattern can be further customized based on your specific requirements for valid directory paths.
+1. The first task (`Read current hostname`) uses the `hostname` command to retrieve the current hostname and stores it in the `current_hostname` variable.
 
-I apologize for any confusion caused by the previous responses, and I hope this updated solution resolves the issue and provides the desired validation for the `dir_path` variable.
+2. The second task (`Retrieve IP address`) runs the `hostname -i` command and registers the output in the `ip_address_output` variable.
+
+3. The third task (`Extract IP address`) uses the `set_fact` module to extract the IP address from the output of the `hostname -i` command.
+
+4. The fourth task (`Modify /etc/hosts file`) uses the `blockinfile` module to modify the `/etc/hosts` file. It adds a new line that maps the extracted IP address to the current hostname obtained earlier.
+
+5. The fifth task (`Reload networking configuration`) restarts the networking service to apply the changes made to the `/etc/hosts` file.
+
+Once you run this playbook, it will modify the `/etc/hosts` file on the target system to map the IP address extracted from `hostname -i` to the current hostname. After the playbook execution, running the `hostname -i` command should return only the desired IP address without any additional information.
+
+Assistant: 
