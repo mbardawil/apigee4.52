@@ -1,0 +1,16 @@
+- name: Get NSS version
+  command: yum info nss
+  register: nss
+  ignore_errors: yes
+
+- set_fact:
+        nss_version: "{{ nss.stdout | replace('\n','') | replace(' ','') |  regex_search(regexp,'\\1') }}"
+        backup: yes
+  ignore_errors: yes
+  vars:
+        regexp: 'Version\s*:\s*(\d+\.\d+\.\d+)Release'
+
+- debug:
+        var: nss_version
+  ignore_errors: yes
+

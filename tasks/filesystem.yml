@@ -1,0 +1,30 @@
+
+- lvg:
+    vg: vg_apigee
+    pvs: /dev/sdb
+
+- lvol: 
+    vg: vg_apigee
+    lv: lv_apigee
+    pvs: /dev/sdb
+    size: 100%FREE
+
+- name: Create apigee filesystem
+  filesystem:
+    fstype: xfs
+    dev: /dev/vg_apigee/lv_apigee
+
+- name: Mount apigee
+  mount:
+    path: /apigee
+    src: /dev/mapper/vg_apigee-lv_apigee
+    fstype: xfs
+    dump: 0
+    passno: 0
+    state: mounted
+
+- file:
+    path: /apigee
+    state: directory
+    owner: apigee
+    group: apigee

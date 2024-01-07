@@ -1,0 +1,30 @@
+---
+- import_role:
+    name: apigee-tmp-dir
+- name: Copy edgedc2.conf
+  copy:
+    src: edgedc2.conf
+    dest: /tmp/apigee/edgedc2.conf
+    owner: apigee
+    group: apigee
+    mode: 0600
+  when: inventory_hostname in groups['apigeedr']
+
+- name: Copy edgedc1.conf
+  copy:
+    src: edgedc1.conf
+    dest: /tmp/apigee/edgedc1.conf
+    owner: apigee
+    group: apigee
+    mode: 0600
+  when: inventory_hostname in groups['apigeem']
+
+- name: Copy license
+  copy:
+    src: pre.txt
+    dest: /tmp/apigee/pre.txt
+    owner: apigee
+    group: apigee
+    mode: 0600
+ 
+

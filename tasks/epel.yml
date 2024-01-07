@@ -1,0 +1,25 @@
+
+- name: Copy EPEL package to folder tmp
+  copy:
+    src: epel-release-latest-7.noarch.rpm
+    dest: /tmp/epel-release-latest-7.noarch.rpm
+    owner: root
+    group: root
+
+- name: Install EPEL package
+  yum:
+     name: /tmp/epel-release-latest-7.noarch.rpm
+     state: present
+
+- name: Update proxy configuration for EPEL
+  replace:
+        path: /etc/yum.repos.d/epel.repo  #/etc/yum.repos.d/epel.repo
+        regexp: '^\[epel-debuginfo\]'
+        replace: |-
+                proxy=http://proxy.stc.com.sa:8080
+                proxy_username=abaabbad
+                proxy_password=FMqCMutBr4536sK
+                
+                [epel-debuginfo]
+        backup: yes
+

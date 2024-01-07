@@ -1,0 +1,15 @@
+- name: Set DNS
+  copy:
+    src: resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    backup: yes
+    mode: 0644
+  
+- name: Stop dns service
+  service:
+        enabled: no
+        state: stopped
+        name: NetworkManager
+

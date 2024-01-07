@@ -1,0 +1,24 @@
+---
+ 
+- name: Ansible check /opt/java directory exists example.
+  stat:
+    path: /opt/java
+  register: java_folder
+
+- name: Creates java directory if not exist
+  file:
+    path: /opt/java
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: not java_folder.stat.exists
+
+- name: Extract java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64.tar.gz into /opt/java
+  unarchive:
+    src: java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64.tar.gz
+    dest: /opt/java
+    owner: root
+    group: root
+  when: not java_folder.stat.exists
+

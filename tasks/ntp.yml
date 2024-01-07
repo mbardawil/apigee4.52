@@ -1,0 +1,37 @@
+- name: read the ntp config file
+  shell: cat /etc/chrony.conf | grep ^server
+  register: ntp_ips
+
+- name: Update ntp configuration by disabling any old ntp servers
+  replace:
+        path: /etc/chrony.conf
+        regexp: '^server'
+        replace: '#server'
+        backup: yes
+  when: (ntp_ips.stdout.find('10.18.51.11') == -1) or (ntp_ips.stdout.find('10.18.51.12') == -1)
+
+- name: Update ntp configuration by adding new ntp servers
+  blockinfile:
+        dest: /etc/chrony.conf
+        block: |
+                server 10.18.51.11
+                server 10.18.51.12
+        backup: yes
+        marker: ""
+  when: (ntp_ips.stdout.find('10.18.51.11') == -1) or (ntp_ips.stdout.find('10.18.51.12') == -1)
+
+- name: Restart ntp service
+  service:
+        state: restarted
+        name: chronyd
+
+- name: Enable ntp after restarting the service
+  command: timedatectl set-ntp true
+  ignore_errors: yes
+
+- name: Verify ntp after restarting the service
+  command: timedatectl status | grep synchronized
+  retries: 10
+  delay: 10
+  register: ntp_verification_result
+  until: "'yes' in ntp_verification_result.stdout"

@@ -1,0 +1,8 @@
+
+- name: Update java home
+  replace:
+        path: /apigee/etc/defaults.sh
+        regexp: '^(JAVA_HOME.*)'
+        replace: 'JAVA_HOME=/opt/java/jre'
+        backup: yes
+

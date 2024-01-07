@@ -1,0 +1,23 @@
+- hostname:
+    name: "{{ server_host_name }}"
+  become: yes
+  tags: hostname
+
+- name: Verify hostname IP
+  command: hostname -i
+  register: result
+  ignore_errors: yes
+
+- name: Change server hostname
+  blockinfile:
+        dest: /etc/hosts
+        block: |
+                {{ inventory_hostname  }} {{ server_host_name }}.stc.com.sa {{ server_host_name }}
+        backup: yes
+        marker: ""
+  when: result.stdout != inventory_hostname
+
+- name: Verify hostname IP
+  command: hostname -i
+  register: result
+  failed_when: result.stdout != inventory_hostname

@@ -1,0 +1,9 @@
+- name: Get stats of NSCD installation
+  stat:
+        path: /etc/nscd.conf
+  register: nscd
+  tags: nscd
+
+- debug:
+        var: nscd.stat.exists
+

@@ -1,0 +1,16 @@
+- acl:
+        path: /etc/rc.d/init.d/functions
+        state: query
+  register: acl_info_functions
+
+- acl:
+        path: /dev/random
+        state: query
+  register: acl_info_random
+
+- name: show acl info for folder functions
+  debug: var=acl_info_functions.acl
+
+- name: show acl info for folder random
+  debug: var=acl_info_random.acl
+

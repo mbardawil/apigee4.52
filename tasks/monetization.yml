@@ -1,0 +1,8 @@
+- name: Copy Monetization files
+  copy:
+    src:  mondc2.conf
+    dest: /tmp/apigee
+    owner: apigee
+    group: apigee
+    mode: 0644
+  when: inventory_hostname in groups['mpdr']

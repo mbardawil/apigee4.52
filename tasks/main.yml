@@ -1,0 +1,92 @@
+---
+- block:
+  - import_tasks: dns.yml
+    tags:
+      - dns
+
+#  - import_tasks: nss.yml
+#    tags:
+#      - nss
+
+#  - import_tasks: libdb.yml
+#    tags:
+#      - libdb
+
+#  - import_tasks: acl.yml
+#    tags:
+#      - acl
+
+#  - import_tasks: firewall.yml
+#    tags:
+#      - firewall
+
+#  - import_tasks: hostname.yml
+#    tags:
+#      - hostname
+
+  - import_tasks: ntp.yml
+    tags:
+      - ntp
+  
+  - import_tasks: epel.yml
+    tags:
+      - epel
+
+  - import_tasks: selinux.yml
+    tags:
+      - selinux
+
+  - import_tasks: account.yml
+    tags:
+      - account
+
+  - import_tasks: filesystem.yml
+    tags:
+      - filesystem
+    become: yes
+
+  - import_tasks: installation-path.yml
+    tags:
+      - installation-path
+    become: yes
+
+  - import_tasks: java.yml
+    when: not apigee_java_package is none
+    tags:
+      - java
+
+  - import_tasks: bootstrap.yml
+    tags:
+      - bootstrap
+
+  - import_tasks: nscd.yml
+    tags:
+      - nscd
+  - import_tasks: response.yml
+    become: yes
+    tags:
+      - response
+
+  - import_tasks: cpy.yml
+    become: yes
+    tags:
+      - cpy
+
+  - import_tasks: limit.yml
+    become: yes
+    tags:
+      - limitall
+
+  - import_tasks: javahome.yml
+    become: yes
+    tags:
+      - javahome
+
+  - import_tasks: monetization.yml
+    become: yes
+    tags:
+      - monetization
+
+
+  become: yes
+

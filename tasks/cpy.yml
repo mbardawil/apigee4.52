@@ -1,0 +1,62 @@
+- name: Copy DS files
+  copy:
+    src: "{{ item }}"
+    dest: /opt/apigee/customer/application/
+    owner: apigee
+    group: apigee
+    mode: 0644
+  when: inventory_hostname in groups['dsdr']
+  with_fileglob:
+    - /home/ansible/ansible/roles/apigee-bootstrap/files/ds/application/*
+
+- name: Copy MS files
+  copy:
+    src:  "{{ item }}"
+    dest: /opt/apigee/customer/application/
+    owner: apigee
+    group: apigee
+    mode: 0644
+  when: inventory_hostname in groups['msdr']
+  with_fileglob:
+    - /home/ansible/ansible/roles/apigee-bootstrap/files/ms/application/*
+
+- name: Copy MS folder
+  copy:
+    src:  ms/application/SSL
+    dest: /opt/apigee/customer/application
+    owner: apigee
+    group: apigee
+    mode: 0644
+  when: inventory_hostname in groups['msdr']
+
+- name: Copy MP files
+  copy:
+    src:  "{{ item }}"
+    dest: /opt/apigee/customer/application/
+    owner: apigee
+    group: apigee
+    mode: 0644
+  when: inventory_hostname in groups['mpdr']
+  with_fileglob:
+    - /home/ansible/ansible/roles/apigee-bootstrap/files/rmp/application/*
+
+- name: Copy UI file
+  copy:
+    src:  /home/ansible/ansible/roles/apigee-bootstrap/files/ui/uissl.conf
+    dest: /tmp/apigee
+    owner: apigee
+    group: apigee
+    mode: 0644
+  when: inventory_hostname in groups['msdr']
+
+- name: Copy Ps file
+  copy:
+    src:  "{{ item }}"
+    dest: /opt/apigee/customer/application/
+    owner: apigee
+    group: apigee
+    mode: 0644
+  when: inventory_hostname in groups['pdr']
+  with_fileglob:
+    - /home/ansible/ansible/roles/apigee-bootstrap/files/ps/application/*
+

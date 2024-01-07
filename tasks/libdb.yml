@@ -1,0 +1,6 @@
+- name: Check libdb4 library
+  shell: rpm -qa | grep libdb4
+  register: libdbversion
+  failed_when: libdbversion.stdout != ''
+  ignore_errors: yes
+
