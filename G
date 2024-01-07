@@ -1,23 +1,37 @@
-- hostname:
-    name: "{{ server_host_name }}"
-  become: yes
-  tags: hostname
+---
+- hosts: your_host
+  become: true
+  tasks:
+    - name: Stop and disable PostgreSQL
+      service:
+        name: postgresql
+        state: stopped
+        enabled: no
 
-- name: Verify hostname IP
-  command: hostname -i
-  register: result
-  ignore_errors: yes
+    - name: Stop and disable Nginx
+      service:
+        name: nginx
+        state: stopped
+        enabled: no
 
-- name: Change server hostname
-  blockinfile:
-        dest: /etc/hosts
-        block: |
-                {{ inventory_hostname  }} {{ server_host_name }}.stc.com.sa {{ server_host_name }}
-        backup: yes
-        marker: ""
-  when: result.stdout != inventory_hostname
+    - name: Install Python 2
+      package:
+        name: python2
+        state: present
 
-- name: Verify hostname IP
-  command: hostname -i
-  register: result
-  failed_when: result.stdout != inventory_hostname
+    - name: Create symlink for Python
+      file:
+        src: /usr/bin/python2
+        dest: /usr/bin/python
+        state: link
+        force: yes
+
+    - name: Copy EPEL RPM to target host
+      copy:
+        src: /path/to/epel-release-latest-8.noarch.rpm
+        dest: /tmp/epel-release-latest-8.noarch.rpm
+
+    - name: Install EPEL repository
+      yum:
+        name: /tmp/epel-release-latest-8.noarch.rpm
+        state: present
