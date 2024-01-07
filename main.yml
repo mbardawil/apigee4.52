@@ -1,0 +1,22 @@
+---
+# vars file for apigee-bootstrap
+apigee_tmp_dir: /tmp/apigee
+
+apigee_bootstrap_url: http://10.23.68.207:3939/bootstrap_4.19.06.sh
+apigee_bootstrap_path: '{{ apigee_tmp_dir }}/bootstrap_4.19.06.sh'
+apigee_repository_username: admin
+apigee_repository_password: admin
+apigee_repository_protocol: http://
+apigee_repository_address: 10.23.68.207:3939
+
+apigee_account_comment: Apigee platform user
+apigee_account_home: /opt/apigee
+apigee_account_shell: /sbin/nologin
+
+apigee_installation_path: /opt
+apigee_edge_installation_path: '/apigee'
+apigee_nginx_installation_path: '{{ apigee_installation_path }}/nginx'
+
+apigee_java_version: 8
+# Leave this blank to skip Java installation.
+apigee_java_package: java-1.{{ apigee_java_version }}.0-openjdk-devel
