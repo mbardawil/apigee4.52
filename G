@@ -1,49 +1,23 @@
-User: Make sthea steps in ansible task
+- hostname:
+    name: "{{ server_host_name }}"
+  become: yes
+  tags: hostname
 
-Assistant: Certainly! Here's an example playbook that uses Ansible tasks to modify the `/etc/hosts` file and configure the system so that `hostname -i` returns only the IP address:
+- name: Verify hostname IP
+  command: hostname -i
+  register: result
+  ignore_errors: yes
 
-```yaml
----
-- hosts: your_host
-  become: true
-  tasks:
-    - name: Read current hostname
-      command: hostname
-      register: current_hostname
-
-    - name: Retrieve IP address
-      command: hostname -i
-      register: ip_address_output
-
-    - name: Extract IP address
-      set_fact:
-        ip_address: "{{ ip_address_output.stdout | regex_replace('^(\\S+).*$', '\\1') }}"
-
-    - name: Modify /etc/hosts file
-      blockinfile:
-        path: /etc/hosts
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+- name: Change server hostname
+  blockinfile:
+        dest: /etc/hosts
         block: |
-          {{ ip_address }}   {{ current_hostname.stdout }}
+                {{ inventory_hostname  }} {{ server_host_name }}.stc.com.sa {{ server_host_name }}
+        backup: yes
+        marker: ""
+  when: result.stdout != inventory_hostname
 
-    - name: Reload networking configuration
-      command: systemctl restart networking
-      become: true
-      become_method: sudo
-```
-
-In this playbook, the tasks are as follows:
-
-1. The first task (`Read current hostname`) uses the `hostname` command to retrieve the current hostname and stores it in the `current_hostname` variable.
-
-2. The second task (`Retrieve IP address`) runs the `hostname -i` command and registers the output in the `ip_address_output` variable.
-
-3. The third task (`Extract IP address`) uses the `set_fact` module to extract the IP address from the output of the `hostname -i` command.
-
-4. The fourth task (`Modify /etc/hosts file`) uses the `blockinfile` module to modify the `/etc/hosts` file. It adds a new line that maps the extracted IP address to the current hostname obtained earlier.
-
-5. The fifth task (`Reload networking configuration`) restarts the networking service to apply the changes made to the `/etc/hosts` file.
-
-Once you run this playbook, it will modify the `/etc/hosts` file on the target system to map the IP address extracted from `hostname -i` to the current hostname. After the playbook execution, running the `hostname -i` command should return only the desired IP address without any additional information.
-
-Assistant: 
+- name: Verify hostname IP
+  command: hostname -i
+  register: result
+  failed_when: result.stdout != inventory_hostname
